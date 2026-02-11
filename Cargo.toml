@@ -1,0 +1,17 @@
+[package]
+name = "todo-inator"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] } # "serde" helps with fuzzing/serialization later
+thiserror = "1.0"
+
+[dev-dependencies]
+tempfile = "3"
+
+[features]
+# The default is no extra features
+default = []
+# Define the fuzzing feature so cargo-fuzz can activate it
+fuzzing = []

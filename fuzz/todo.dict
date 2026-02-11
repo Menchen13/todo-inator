@@ -1,0 +1,22 @@
+# The completion marker
+"x"
+
+# Priority syntax
+"("
+")"
+"(A)"
+"(B)"
+
+# Date components and examples
+"-"
+"2020-01-01"
+"1999-12-31"
+
+# Contexts and Projects
+"+"
+"@"
+"+project"
+"@context"
+
+# Your parser splits on whitespace, so spaces are helpful
+" "
