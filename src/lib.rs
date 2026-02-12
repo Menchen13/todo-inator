@@ -3,6 +3,7 @@ use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 use std::str::FromStr;
 use std::{fmt, fs};
+use std::collections::HashSet;
 
 use chrono::NaiveDate;
 use thiserror::Error;
@@ -13,8 +14,8 @@ pub struct TodoItem {
     pub priority: Option<char>,
     pub completion_date: Option<NaiveDate>,
     pub creation_date: Option<NaiveDate>,
-    pub contexts: Vec<String>,
-    pub projects: Vec<String>,
+    pub contexts: HashSet<String>,
+    pub projects: HashSet<String>,
     pub description: String,
 }
 
@@ -94,14 +95,14 @@ impl FromStr for TodoItem {
         let remaining: Vec<&str> = tokens.collect();
         let description = remaining.join(" ");
 
-        let mut projects = Vec::new();
-        let mut contexts = Vec::new();
+        let mut projects = HashSet::new();
+        let mut contexts = HashSet::new();
 
         for word in &remaining {
             if word.starts_with('+') && word.len() > 1 {
-                projects.push(word[1..].to_string()); //something here
+                projects.insert(word[1..].to_string()); //something here
             } else if word.starts_with('@') && word.len() > 1 {
-                contexts.push(word[1..].to_string());
+                contexts.insert(word[1..].to_string());
             }
         }
 
@@ -140,7 +141,7 @@ impl fmt::Display for TodoItem {
             }
         }
 
-        write!(f, "{}", self.description)?;
+        write!(f, "{}", self.description.trim())?;
 
         Ok(())
     }
