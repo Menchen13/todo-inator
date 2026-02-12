@@ -1,8 +1,8 @@
-use std::{fmt, fs};
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 use std::str::FromStr;
+use std::{fmt, fs};
 
 use chrono::NaiveDate;
 use thiserror::Error;
@@ -16,6 +16,10 @@ pub struct TodoItem {
     pub contexts: Vec<String>,
     pub projects: Vec<String>,
     pub description: String,
+}
+
+pub struct TodoList {
+    pub items: Vec<TodoItem>,
 }
 
 #[derive(Error, Debug)]
@@ -130,8 +134,7 @@ impl fmt::Display for TodoItem {
             (Some(creat), None) => {
                 write!(f, "{} ", creat)?;
             }
-            (None, None) => {
-            }
+            (None, None) => {}
             _ => {
                 return Err(std::fmt::Error);
             }
@@ -143,66 +146,75 @@ impl fmt::Display for TodoItem {
     }
 }
 
-// The template looking thing is definies a generic type P with the condition that the type P can
-// be turned to a &Path cheaply with the .as_ref() API. It basically checks if the type has the
-// Trait AsRef<Path> implemented.
-pub fn load_file<P: AsRef<Path>>(path: P) -> Result<Vec<TodoItem>, TodoError> {
-    // File::open is kinda like FILE* in C and the BufReader around it makes reading more efficient
-    // (should almost always be used from what i can tell)
-    let reader = BufReader::new(File::open(path)?);
-    load_from_reader(reader)
-}
+impl TodoList {
+    pub fn add_item(&mut self, input: &str) -> Result<(), TodoError> {
+        let item = input.parse::<TodoItem>()?;
+        self.items.push(item);
+        Ok(())
+    }
+    pub fn sort_by_priority(&mut self) {
+        // Rust's sort_by is perfect here
+        // We put None (no priority) at the bottom
+        self.items.sort_by(|a, b| b.priority.cmp(&a.priority));
+    }
 
+    // The template looking thing is definies a generic type P with the condition that the type P can
+    // be turned to a &Path cheaply with the .as_ref() API. It basically checks if the type has the
+    // Trait AsRef<Path> implemented.
+    pub fn load_file<P: AsRef<Path>>(path: P) -> Result<Self, TodoError> {
+        // File::open is kinda like FILE* in C and the BufReader around it makes reading more efficient
+        // (should almost always be used from what i can tell)
+        let reader = BufReader::new(File::open(path)?);
+        let items = Self::load_from_reader(reader)?;
+        Ok(Self { items })
+    }
 
-fn load_from_reader<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
-    
-    let mut tasks = Vec::<TodoItem>::new();
+    fn load_from_reader<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
+        let mut tasks = Vec::<TodoItem>::new();
 
-    for line_result in reader.lines() {
-        // this is to handle IO errors like file corruption or deleting during read
-        let line = line_result?;
+        for line_result in reader.lines() {
+            // this is to handle IO errors like file corruption or deleting during read
+            let line = line_result?;
 
-        if line.trim().is_empty() {
-            continue;
+            if line.trim().is_empty() {
+                continue;
+            }
+
+            // uses the FromStr Trait defined for TodoItem with the parse API.
+            let task = line.parse::<TodoItem>()?;
+
+            tasks.push(task);
         }
 
-        // uses the FromStr Trait defined for TodoItem with the parse API.
-        let task = line.parse::<TodoItem>()?;
-
-        tasks.push(task);
+        Ok(tasks)
     }
 
-    Ok(tasks)
-}
-
-#[cfg(fuzzing)]
-pub fn load_from_reader_fuzz<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
-    load_from_reader(reader)
-}
-
-
-pub fn save_file<P: AsRef<Path>>(path: P, todos: &[TodoItem]) -> io::Result<()> {
-    // use a tmp file to achive atomic write
-    let tmp_path = path.as_ref().with_extension("tmp");
-    let writer = BufWriter::new(File::create(&tmp_path)?);
-    save_to_writer(writer, todos)?;
-
-    fs::rename(tmp_path, path)?;
-    Ok(())
-}
-
-// &[TodoItem] is a Slice of TodoItem. This can be a Vector or Array or smt. Keeps the function
-// more generic
-fn save_to_writer<W: Write>(mut writer: W, todos: &[TodoItem]) -> io::Result<()> {
-    for item in todos {
-        writeln!(writer, "{}", item)?;
+    #[cfg(fuzzing)]
+    pub fn load_from_reader_fuzz<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
+        Self::load_from_reader(reader)
     }
-    Ok(())
 
-    
-}
+    pub fn save_file<P: AsRef<Path>>(path: P, todos: &TodoList) -> io::Result<()> {
+        // use a tmp file to achive atomic write
+        let tmp_path = path.as_ref().with_extension("tmp");
+        let writer = BufWriter::new(File::create(&tmp_path)?);
+        Self::save_to_writer(writer, todos)?;
 
-#[cfg(fuzzing)]
-pub fn save_to_writer_fuzz<W: Write>(writer: W, todos: &[TodoItem]) -> io::Result<()> {
-    save_to_writer(writer, todos)
+        fs::rename(tmp_path, path)?;
+        Ok(())
+    }
+
+    // &[TodoItem] is a Slice of TodoItem. This can be a Vector or Array or smt. Keeps the function
+    // more generic
+    fn save_to_writer<W: Write>(mut writer: W, todos: &TodoList) -> io::Result<()> {
+        for item in todos.items.iter() {
+            writeln!(writer, "{}", item)?;
+        }
+        Ok(())
+    }
+
+    #[cfg(fuzzing)]
+    pub fn save_to_writer_fuzz<W: Write>(writer: W, todos: &[TodoItem]) -> io::Result<()> {
+        Self::save_to_writer(writer, todos)
+    }
 }

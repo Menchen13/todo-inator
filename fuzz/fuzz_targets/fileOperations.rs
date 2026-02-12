@@ -6,6 +6,7 @@ use std::io::Cursor;
 // Assuming you made load_from_reader_fuzz and save_to_writer_fuzz available
 use todo_inator::{load_from_reader_fuzz, save_to_writer_fuzz}; 
 
+// not working anymore since update to TodoList Object
 fuzz_target!(|data: &str| {
     // 1. Attempt to load the random bytes
     let cursor = Cursor::new(data);

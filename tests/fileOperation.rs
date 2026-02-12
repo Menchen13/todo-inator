@@ -8,6 +8,7 @@ fn date(y: i32, m: u32, d: u32) -> NaiveDate {
 }
 
 #[test]
+//deprecated since updating to TodoItem class instead of raw Vec
 fn test_read_from_file() {
     let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
     tmpfile.seek(SeekFrom::Start(0)).unwrap();
@@ -35,6 +36,7 @@ fn test_read_from_file() {
 }
 
 #[test]
+//deprecated since updating to TodoItem class instead of raw Vec
 fn test_write_to_file() {
     let item1: TodoItem = TodoItem {
         completed: (true),
