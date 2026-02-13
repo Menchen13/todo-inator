@@ -6,16 +6,16 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "Rust Todo.txt Editor",
         native_options,
-        Box::new(|_cc| Ok(Box::new(TodoApp::default()))),
+        Box::new(|_cc| Ok(Box::new(TodoInator::default()))),
     )
 }
 
-struct TodoApp {
+struct TodoInator {
     list: TodoList,
     new_task_input: String,
 }
 
-impl Default for TodoApp {
+impl Default for TodoInator {
     fn default() -> Self {
         Self {
             // Try to load the file on startup, or start empty
@@ -25,7 +25,7 @@ impl Default for TodoApp {
     }
 }
 
-impl eframe::App for TodoApp {
+impl eframe::App for TodoInator {
     // This function runs every single frame (60fps)
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {

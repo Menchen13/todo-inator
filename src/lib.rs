@@ -19,6 +19,7 @@ pub struct TodoItem {
     pub description: String,
 }
 
+#[derive(Default)]
 pub struct TodoList {
     pub items: Vec<TodoItem>,
 }
