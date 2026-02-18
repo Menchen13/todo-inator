@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] } # "serde" helps with fuzzing/serialization later
 thiserror = "1.0"
-eframe = { version = "0.33.3", features = ["persistence", "wgpu"] }
+slint = "1.15.1"
 
 [dev-dependencies]
 tempfile = "3"

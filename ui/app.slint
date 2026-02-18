@@ -1,0 +1,67 @@
+import { CheckBox } from "std-widgets.slint";
+export struct TodoData {
+    description: string,
+    checked: bool,
+    prio_text: string,
+    prio_color: color, 
+    
+}
+
+component StrikeText inherits Rectangle {
+    in property <string> text <=> label.text;
+    in property <bool> checked;
+    horizontal-stretch: 1;
+
+    // text to be displayed
+    label := Text {
+        wrap: word-wrap;
+        font-size: 15px;
+        vertical-alignment: center;
+    }
+
+    //line to cross out the text is box is checked
+    Rectangle {
+        background: label.color;
+        height: 1.3px;
+        width: label.preferred-width;
+        y: parent.height / 2;
+        x: 0;
+        visible: root.checked;
+    }
+}
+component TodoRow inherits Rectangle {
+    in property <TodoData> item;
+    height: 40px;
+    HorizontalLayout {
+        alignment: start;
+        spacing: 8px;
+        padding: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        CheckBox {
+            checked: root.item.checked;
+            //might need toggled callback to get change the value of the item?
+        }
+        Text {
+            text: root.item.prio-text;
+            color: root.item.prio-color;
+            font-size: 15px;
+            vertical-alignment: center;
+        }
+
+        StrikeText {
+            text: root.item.description;
+            checked: root.item.checked;
+        }
+    }
+}
+export component MainWindow inherits Window {
+    TodoRow {
+        item: {
+            description: "This is a Task",
+            checked: true,
+            prio_text: "(A)",
+            prio_color: Colors.red,
+        };
+    }
+}
