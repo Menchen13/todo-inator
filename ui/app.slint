@@ -1,101 +1,11 @@
-import { CheckBox } from "std-widgets.slint";
-export struct TodoData {
-    description: string,
-    checked: bool,
-    prio_text: string,
-    prio_color: color,
-    created_text: string, // no color always grey
-    due_text: string,
-    due_color: color,
-    start_text: string,
-    start_color: color,
-}
-//pallete:
-//Tomorrow Colors.cornflowerblue
-//Today Colors.forestgreen
-//Overdue Colors.firebrick
+import {TodoRow} from "TodoRow.slint";
 
-component StrikeText inherits Rectangle {
-    in property <string> text <=> label.text;
-    in property <bool> checked;
-    horizontal-stretch: 1;
 
-    // text to be displayed
-    label := Text {
-        wrap: word-wrap;
-        font-size: 15px;
-        vertical-alignment: center;
-    }
-
-    //line to cross out the text is box is checked
-    Rectangle {
-        background: label.color;
-        height: 1.3px;
-        width: label.preferred-width;
-        y: parent.height / 2;
-        x: 0;
-        visible: root.checked;
-    }
-}
-
-component TodoRow inherits Rectangle {
-    in property <TodoData> item;
-    height: 55px;
-    width: 500px;
-    VerticalLayout {
-        padding: 10px;
-        spacing: 2px;
-        //Top row
-        HorizontalLayout {
-            alignment: start;
-            spacing: 8px;
-            CheckBox {
-                checked: root.item.checked;
-                //might need toggled callback to get change the value of the item?
-            }
-            Text {
-                text: root.item.prio-text;
-                color: root.item.prio-color;
-                font-size: 15px;
-                vertical-alignment: center;
-            }
-            StrikeText {
-                text: root.item.description;
-                checked: root.item.checked;
-            }
-        }
-        //Bottom row
-        HorizontalLayout {
-            padding: 2px;
-            //move to start at the level of prio-char
-            // (checkbox) 18px + (spacing Top row) 8px
-            padding-left: 18px + 8px;
-            Text {
-                font-size: 12px;
-                text: root.item.created-text;
-                color: #A0A0A0;
-                visible: self.text != "";
-            }
-
-            Text {
-                font-size: 12px;
-                text: root.item.due-text;
-                color: root.item.due-color;
-                visible: self.text != "";
-            }
-
-            Text {
-                font-size: 12px;
-                text: root.item.start-text;
-                color: root.item.start-color;
-                visible: self.text != "";
-            }
-
-        }
-    }
-}
 export component MainWindow inherits Window {
+    width: 500px;
+    height: 55px;
     TodoRow {
+        height: 51px;
         item: {
             description: "This is a Task",
             checked: false,
