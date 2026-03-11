@@ -1,0 +1,15 @@
+export component Seperator inherits Rectangle {
+    in property <string> text;
+    height: 25px;
+    horizontal-stretch: 1;
+    background: deepskyblue;
+
+    Text {
+        text: root.text;
+        color: white;
+        font-weight: 800;
+        horizontal-alignment: center;
+    }
+}
+
+

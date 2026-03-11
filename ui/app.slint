@@ -1,22 +1,29 @@
-import {TodoRow} from "TodoRow.slint";
+import { TodoRow } from "TodoRow.slint";
+import { Seperator } from "Seperator.slint";
 
 
 export component MainWindow inherits Window {
     width: 500px;
-    height: 55px;
-    TodoRow {
-        height: 51px;
-        item: {
-            description: "This is a Task",
-            checked: false,
-            prio_text: "(A)",
-            prio_color: Colors.red,
-            created-text: "Yesterday",
-            due_text: "Due: Tomorrow",
-            due_color: Colors.cornflowerblue,
-            start_text: "T: Today",
-            start_color: Colors.forestgreen
-
-        };
+    height: 80px;
+    VerticalLayout {
+        TodoRow {
+            height: 51px;
+            item: {
+                description: "This is a Task",
+                checked: false,
+                prio_text: "(A)",
+                prio_color: Colors.red,
+                created-text: "Yesterday",
+                due_text: "Due: Tomorrow",
+                due_color: Colors.cornflowerblue,
+                start_text: "T: Today",
+                start_color: Colors.forestgreen
+            };
+        }
+        Seperator {
+            background: Colors.deepskyblue;
+            text: "AAAA";
+        }
+    
     }
 }
