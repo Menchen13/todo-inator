@@ -1,9 +1,9 @@
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 use std::str::FromStr;
 use std::{fmt, fs};
-use std::collections::HashSet;
 
 use chrono::NaiveDate;
 use thiserror::Error;
@@ -157,7 +157,7 @@ impl TodoList {
     pub fn sort_by_priority(&mut self) {
         // Rust's sort_by is perfect here
         // We put None (no priority) at the bottom
-        self.items.sort_by(|a, b| b.priority.cmp(&a.priority));
+        self.items.sort_by_key(|a| std::cmp::Reverse(a.priority));
     }
 
     // The template looking thing is definies a generic type P with the condition that the type P can
@@ -171,7 +171,7 @@ impl TodoList {
         Ok(Self { items })
     }
 
-    fn load_from_reader<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
+    pub fn load_from_reader<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
         let mut tasks = Vec::<TodoItem>::new();
 
         for line_result in reader.lines() {
@@ -191,11 +191,6 @@ impl TodoList {
         Ok(tasks)
     }
 
-    #[cfg(fuzzing)]
-    pub fn load_from_reader_fuzz<R: BufRead>(reader: R) -> Result<Vec<TodoItem>, TodoError> {
-        Self::load_from_reader(reader)
-    }
-
     pub fn save_file<P: AsRef<Path>>(path: P, todos: &TodoList) -> Result<(), TodoError> {
         // use a tmp file to achive atomic write
         let tmp_path = path.as_ref().with_extension("tmp");
@@ -206,17 +201,10 @@ impl TodoList {
         Ok(())
     }
 
-    // &[TodoItem] is a Slice of TodoItem. This can be a Vector or Array or smt. Keeps the function
-    // more generic
     fn save_to_writer<W: Write>(mut writer: W, todos: &TodoList) -> Result<(), TodoError> {
         for item in todos.items.iter() {
             writeln!(writer, "{}", item)?;
         }
         Ok(())
-    }
-
-    #[cfg(fuzzing)]
-    pub fn save_to_writer_fuzz<W: Write>(writer: W, todos: &[TodoItem]) -> Result<(), TodoError> {
-        Self::save_to_writer(writer, todos)
     }
 }
