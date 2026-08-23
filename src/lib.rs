@@ -196,7 +196,7 @@ impl TodoList {
         Self::load_from_reader(reader)
     }
 
-    pub fn save_file<P: AsRef<Path>>(path: P, todos: &TodoList) -> io::Result<()> {
+    pub fn save_file<P: AsRef<Path>>(path: P, todos: &TodoList) -> Result<(), TodoError> {
         // use a tmp file to achive atomic write
         let tmp_path = path.as_ref().with_extension("tmp");
         let writer = BufWriter::new(File::create(&tmp_path)?);
@@ -208,7 +208,7 @@ impl TodoList {
 
     // &[TodoItem] is a Slice of TodoItem. This can be a Vector or Array or smt. Keeps the function
     // more generic
-    fn save_to_writer<W: Write>(mut writer: W, todos: &TodoList) -> io::Result<()> {
+    fn save_to_writer<W: Write>(mut writer: W, todos: &TodoList) -> Result<(), TodoError> {
         for item in todos.items.iter() {
             writeln!(writer, "{}", item)?;
         }
@@ -216,7 +216,7 @@ impl TodoList {
     }
 
     #[cfg(fuzzing)]
-    pub fn save_to_writer_fuzz<W: Write>(writer: W, todos: &[TodoItem]) -> io::Result<()> {
+    pub fn save_to_writer_fuzz<W: Write>(writer: W, todos: &[TodoItem]) -> Result<(), TodoError> {
         Self::save_to_writer(writer, todos)
     }
 }
